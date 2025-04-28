@@ -1,0 +1,56 @@
+# build file
+
+import subprocess
+
+# Config
+target_name = "proconlib-demo"
+src = "main.cpp"
+
+# Library
+## SDL3
+sdl3 = {}
+sdl3["lib"] = "SDL3"
+sdl3["path"] = (
+    subprocess.Popen(["brew", "--prefix", "sdl3"], stdout=subprocess.PIPE)
+    .stdout.read()
+    .decode("UTF-8")
+    .strip()
+)
+sdl3["lib_path"] = sdl3["path"] + "/lib"
+sdl3["include_path"] = sdl3["path"] + "/include"
+
+## proconlib
+proconlib = {}
+proconlib["include_path"] = ".."
+
+## GamepadMotionHelpers
+GamepadMotionHelpers = {}
+GamepadMotionHelpers["include_path"] = ".."
+GamepadMotionHelpers["ccflag"] = "-Wno-comment"
+
+## raylib
+raylib = {}
+raylib["lib"] = "raylib"
+raylib["path"] = (
+    subprocess.Popen(["brew", "--prefix", "raylib"], stdout=subprocess.PIPE)
+    .stdout.read()
+    .decode("UTF-8")
+    .strip()
+)
+raylib["lib_path"] = raylib["path"] + "/lib"
+raylib["include_path"] = raylib["path"] + "/include"
+
+# Executable
+Program(
+    target_name,
+    src,
+    LIBS=[sdl3["lib"], raylib["lib"]],
+    LIBPATH=[sdl3["lib_path"], raylib["lib_path"]],
+    CPPPATH=[
+        sdl3["include_path"],
+        raylib["include_path"],
+        proconlib["include_path"],
+        GamepadMotionHelpers["include_path"],
+    ],
+    CCFLAGS=["-std=c++2c", GamepadMotionHelpers["ccflag"]],
+)
