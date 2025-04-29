@@ -22,6 +22,10 @@ struct Procon {
 
   auto get_quaternion() -> std::tuple<float, float, float, float>;
 
+  auto is_button_pressed(SDL_GamepadButton button) -> bool;
+  auto is_zbutton_pressed(SDL_GamepadAxis axis) -> bool;
+  auto get_axis(SDL_GamepadAxis axis) -> int16_t;
+
   auto print_procon() -> void;
   auto print_motion() -> void;
   auto print() -> void;
@@ -89,6 +93,18 @@ auto Procon::get_quaternion() -> std::tuple<float, float, float, float> {
   return std::tuple<float, float, float, float>{w, x, y, z};
 }
 
+auto Procon::is_button_pressed(SDL_GamepadButton button) -> bool {
+  return this->procon.is_button_pressed(button);
+}
+
+auto Procon::is_zbutton_pressed(SDL_GamepadAxis axis) -> bool {
+  return this->procon.is_zbutton_pressed(axis);
+}
+
+auto Procon::get_axis(SDL_GamepadAxis axis) -> int16_t {
+  return this->procon.get_axis(axis);
+}
+
 auto Procon::print_procon() -> void { this->procon.print_data(); }
 
 auto Procon::print_motion() -> void {
@@ -103,6 +119,407 @@ auto Procon::print() -> void {
 }
 
 //------------------------------------------------------------------------------
+
+auto draw_gamepad(Procon &procon) -> void {
+
+  // Color
+  auto white = Color{255, 255, 255, 255};
+  auto black = Color{0, 0, 0, 255};
+
+  // quaternion data
+  auto [w, x, y, z] = procon.get_quaternion();
+
+  auto bt_up = procon.is_button_pressed(SDL_GAMEPAD_BUTTON_DPAD_UP);
+  auto bt_down = procon.is_button_pressed(SDL_GAMEPAD_BUTTON_DPAD_DOWN);
+  auto bt_left = procon.is_button_pressed(SDL_GAMEPAD_BUTTON_DPAD_LEFT);
+  auto bt_right = procon.is_button_pressed(SDL_GAMEPAD_BUTTON_DPAD_RIGHT);
+  auto bt_a = procon.is_button_pressed(SDL_GAMEPAD_BUTTON_EAST);
+  auto bt_b = procon.is_button_pressed(SDL_GAMEPAD_BUTTON_SOUTH);
+  auto bt_x = procon.is_button_pressed(SDL_GAMEPAD_BUTTON_NORTH);
+  auto bt_y = procon.is_button_pressed(SDL_GAMEPAD_BUTTON_WEST);
+  auto bt_l = procon.is_button_pressed(SDL_GAMEPAD_BUTTON_LEFT_SHOULDER);
+  auto bt_r = procon.is_button_pressed(SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER);
+  auto bt_l_stick = procon.is_button_pressed(SDL_GAMEPAD_BUTTON_LEFT_STICK);
+  auto bt_r_stick = procon.is_button_pressed(SDL_GAMEPAD_BUTTON_RIGHT_STICK);
+  auto bt_plus = procon.is_button_pressed(SDL_GAMEPAD_BUTTON_START);
+  auto bt_minus = procon.is_button_pressed(SDL_GAMEPAD_BUTTON_BACK);
+  auto bt_home = procon.is_button_pressed(SDL_GAMEPAD_BUTTON_GUIDE);
+  auto bt_capture = procon.is_button_pressed(SDL_GAMEPAD_BUTTON_MISC1);
+
+  auto bt_zl = procon.is_zbutton_pressed(SDL_GAMEPAD_AXIS_LEFT_TRIGGER);
+  auto bt_zr = procon.is_zbutton_pressed(SDL_GAMEPAD_AXIS_RIGHT_TRIGGER);
+
+  auto st_l_x = procon.get_axis(SDL_GAMEPAD_AXIS_LEFTX);
+  auto st_l_y = procon.get_axis(SDL_GAMEPAD_AXIS_LEFTY);
+  auto st_r_x = procon.get_axis(SDL_GAMEPAD_AXIS_RIGHTX);
+  auto st_r_y = procon.get_axis(SDL_GAMEPAD_AXIS_RIGHTY);
+
+  // display quaternion value
+  auto font_size = 20;
+
+  {
+    auto str = std::format("w: {}", w);
+    auto text = str.c_str();
+    auto left = 10;
+    auto top = 10;
+
+    DrawText(text, left, top, font_size, black);
+  }
+  {
+    auto str = std::format("x: {}", x);
+    auto text = str.c_str();
+    auto left = 10;
+    auto top = 40;
+
+    DrawText(text, left, top, font_size, black);
+  }
+  {
+    auto str = std::format("y: {}", y);
+    auto text = str.c_str();
+    auto left = 10;
+    auto top = 70;
+
+    DrawText(text, left, top, font_size, black);
+  }
+  {
+    auto str = std::format("z: {}", z);
+    auto text = str.c_str();
+    auto left = 10;
+    auto top = 100;
+
+    DrawText(text, left, top, font_size, black);
+  }
+
+  {
+    auto str = std::format("[-]: {}", bt_minus);
+    auto text = str.c_str();
+    auto left = 10;
+    auto top = 600 - 320;
+    auto width = 140;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 10;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("Capt.: {}", bt_capture);
+    auto text = str.c_str();
+    auto left = 170;
+    auto top = 600 - 320;
+    auto width = 140;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 10;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("L: {}", bt_l);
+    auto text = str.c_str();
+    auto left = 10;
+    auto top = 600 - 280;
+    auto width = 300;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 10;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("ZL: {}", bt_zl);
+    auto text = str.c_str();
+    auto left = 10;
+    auto top = 600 - 240;
+    auto width = 300;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 10;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("Up: {}", bt_up);
+    auto text = str.c_str();
+    auto left = 80;
+    auto top = 600 - 200;
+    auto width = 140;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 10;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("Left: {}", bt_left);
+    auto text = str.c_str();
+    auto left = 10;
+    auto top = 600 - 160;
+    auto width = 140;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 10;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("Right: {}", bt_right);
+    auto text = str.c_str();
+    auto left = 170;
+    auto top = 600 - 160;
+    auto width = 140;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 10;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("Down: {}", bt_down);
+    auto text = str.c_str();
+    auto left = 80;
+    auto top = 600 - 120;
+    auto width = 140;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 10;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("LS: {}", bt_l_stick);
+    auto text = str.c_str();
+    auto left = 10;
+    auto top = 600 - 80;
+    auto width = 140;
+    auto height = 70;
+    auto color = black;
+    auto tx_left = left + 10;
+    auto tx_top = top + 25;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("LS X: {}", st_l_x);
+    auto text = str.c_str();
+    auto left = 170;
+    auto top = 600 - 80;
+    auto width = 140;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 5;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("LS Y: {}", st_l_y);
+    auto text = str.c_str();
+    auto left = 170;
+    auto top = 600 - 40;
+    auto width = 140;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 5;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("Home: {}", bt_home);
+    auto text = str.c_str();
+    auto left = 680 + 10;
+    auto top = 600 - 320;
+    auto width = 140;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 10;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("[+]: {}", bt_plus);
+    auto text = str.c_str();
+    auto left = 680 + 170;
+    auto top = 600 - 320;
+    auto width = 140;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 10;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("R: {}", bt_r);
+    auto text = str.c_str();
+    auto left = 680 + 10;
+    auto top = 600 - 280;
+    auto width = 300;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 10;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("ZR: {}", bt_zr);
+    auto text = str.c_str();
+    auto left = 680 + 10;
+    auto top = 600 - 240;
+    auto width = 300;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 10;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("X: {}", bt_x);
+    auto text = str.c_str();
+    auto left = 680 + 80;
+    auto top = 600 - 200;
+    auto width = 140;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 10;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("Y: {}", bt_y);
+    auto text = str.c_str();
+    auto left = 680 + 10;
+    auto top = 600 - 160;
+    auto width = 140;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 10;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("A: {}", bt_a);
+    auto text = str.c_str();
+    auto left = 680 + 170;
+    auto top = 600 - 160;
+    auto width = 140;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 10;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("B: {}", bt_b);
+    auto text = str.c_str();
+    auto left = 680 + 80;
+    auto top = 600 - 120;
+    auto width = 140;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 10;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("RS: {}", bt_r_stick);
+    auto text = str.c_str();
+    auto left = 680 + 10;
+    auto top = 600 - 80;
+    auto width = 140;
+    auto height = 70;
+    auto color = black;
+    auto tx_left = left + 10;
+    auto tx_top = top + 25;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("LS R: {}", st_r_x);
+    auto text = str.c_str();
+    auto left = 680 + 170;
+    auto top = 600 - 80;
+    auto width = 140;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 5;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+
+  {
+    auto str = std::format("LS R: {}", st_r_y);
+    auto text = str.c_str();
+    auto left = 680 + 170;
+    auto top = 600 - 40;
+    auto width = 140;
+    auto height = 30;
+    auto color = black;
+    auto tx_left = left + 5;
+    auto tx_top = top + 5;
+
+    DrawRectangleLines(left, top, width, height, color);
+    DrawText(text, tx_left, tx_top, font_size, color);
+  }
+}
 
 auto update_screen(Procon &procon, Model &model) -> void {
 
@@ -150,66 +567,7 @@ auto update_screen(Procon &procon, Model &model) -> void {
 
   EndMode3D();
 
-  // display motion values on the screen
-  auto left = 10;
-  auto height = 30;
-
-  {
-    auto str = std::format("w: {}", w);
-    auto text = str.c_str();
-    auto top = 10;
-
-    DrawText(text, left, top, height, black);
-  }
-  {
-    auto str = std::format("x: {}", x);
-    auto text = str.c_str();
-    auto top = 50;
-
-    DrawText(text, left, top, height, black);
-  }
-  {
-    auto str = std::format("y: {}", y);
-    auto text = str.c_str();
-    auto top = 90;
-
-    DrawText(text, left, top, height, black);
-  }
-  {
-    auto str = std::format("z: {}", z);
-    auto text = str.c_str();
-    auto top = 130;
-
-    DrawText(text, left, top, height, black);
-  }
-  {
-    auto str = std::format("ax: {}", deg_axis.x);
-    auto text = str.c_str();
-    auto top = 170;
-
-    DrawText(text, left, top, height, black);
-  }
-  {
-    auto str = std::format("ay: {}", deg_axis.y);
-    auto text = str.c_str();
-    auto top = 210;
-
-    DrawText(text, left, top, height, black);
-  }
-  {
-    auto str = std::format("az: {}", deg_axis.z);
-    auto text = str.c_str();
-    auto top = 250;
-
-    DrawText(text, left, top, height, black);
-  }
-  {
-    auto str = std::format("angle: {}", deg_angle);
-    auto text = str.c_str();
-    auto top = 290;
-
-    DrawText(text, left, top, height, black);
-  }
+  draw_gamepad(procon);
 
   EndDrawing();
 }
