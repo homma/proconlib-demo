@@ -1,56 +1,33 @@
 # build file
 
-import subprocess
+import os
 
 # Config
 target_name = "proconlib-demo"
 src = "main.cpp"
 
+env = Environment(ENV=os.environ.copy())
+env.Append(CCFLAGS=["-std=c++2c"])
+
 # Library
 ## SDL3
-sdl3 = {}
-sdl3["lib"] = "SDL3"
-sdl3["path"] = (
-    subprocess.Popen(["brew", "--prefix", "sdl3"], stdout=subprocess.PIPE)
-    .stdout.read()
-    .decode("UTF-8")
-    .strip()
-)
-sdl3["lib_path"] = sdl3["path"] + "/lib"
-sdl3["include_path"] = sdl3["path"] + "/include"
+env.ParseConfig("pkg-config sdl3 --libs-only-L --libs-only-l --cflags")
 
 ## proconlib
-proconlib = {}
-proconlib["include_path"] = ".."
+env.Append(CPPPATH=[".."])
 
 ## GamepadMotionHelpers
-GamepadMotionHelpers = {}
-GamepadMotionHelpers["include_path"] = ".."
-GamepadMotionHelpers["ccflag"] = "-Wno-comment"
+env.Append(CPPPATH=[".."])
+env.Append(CCFLAGS=["-Wno-comment"])
 
 ## raylib
-raylib = {}
-raylib["lib"] = "raylib"
-raylib["path"] = (
-    subprocess.Popen(["brew", "--prefix", "raylib"], stdout=subprocess.PIPE)
-    .stdout.read()
-    .decode("UTF-8")
-    .strip()
-)
-raylib["lib_path"] = raylib["path"] + "/lib"
-raylib["include_path"] = raylib["path"] + "/include"
+env.ParseConfig("pkg-config raylib --libs-only-L --libs-only-l --cflags")
 
 # Executable
-Program(
-    target_name,
-    src,
-    LIBS=[sdl3["lib"], raylib["lib"]],
-    LIBPATH=[sdl3["lib_path"], raylib["lib_path"]],
-    CPPPATH=[
-        sdl3["include_path"],
-        raylib["include_path"],
-        proconlib["include_path"],
-        GamepadMotionHelpers["include_path"],
-    ],
-    CCFLAGS=["-std=c++2c", GamepadMotionHelpers["ccflag"]],
+program = env.Program(
+    target=target_name,
+    source=src,
 )
+
+# Default Build Target
+Default(program)
