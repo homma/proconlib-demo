@@ -491,7 +491,7 @@ auto draw_gamepad(Procon &procon) -> void {
   }
 
   {
-    auto str = std::format("LS R: {}", st_r_x);
+    auto str = std::format("RS X: {}", st_r_x);
     auto text = str.c_str();
     auto left = 680 + 170;
     auto top = 600 - 80;
@@ -506,7 +506,7 @@ auto draw_gamepad(Procon &procon) -> void {
   }
 
   {
-    auto str = std::format("LS R: {}", st_r_y);
+    auto str = std::format("RS Y: {}", st_r_y);
     auto text = str.c_str();
     auto left = 680 + 170;
     auto top = 600 - 40;
